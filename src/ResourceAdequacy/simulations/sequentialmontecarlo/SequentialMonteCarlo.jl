@@ -60,7 +60,6 @@ function assess(
     results::Channel{<:Tuple{Vararg{ResultAccumulator{SequentialMonteCarlo}}}},
     resultspecs::ResultSpec...
 ) where {R<:ResultSpec, N}
-
     dispatchproblem = DispatchProblem(system)
     systemstate = SystemState(system)
     recorders = accumulator.(system, method, resultspecs)
@@ -71,10 +70,10 @@ function assess(
     rng = Philox4x((0, 0), 10)
 
     for s in sampleseeds
-
+        method.verbose && mod(s,10) == 0 && @info "Thread with ID:  "*string(Threads.threadid())*" processing sample :"*string(s)
+        
         seed!(rng, (method.seed, s))
         initialize!(rng, systemstate, system)
-
         for t in 1:N
 
             advance!(rng, systemstate, dispatchproblem, system, t)
